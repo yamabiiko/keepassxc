@@ -1,0 +1,47 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/classic/main.qml</file>
+    </qresource>
+
+    <qresource prefix="/icons">
+        <file alias="application-exit">../share/icons/application/32x32/actions/application-exit.png</file>
+        <file alias="auto-type">../share/icons/application/32x32/actions/auto-type.png</file>
+        <file alias="chronometer">../share/icons/application/32x32/actions/chronometer.png</file>
+        <file alias="configure">../share/icons/application/32x32/actions/configure.png</file>
+        <file alias="database-change-key">../share/icons/application/32x32/actions/database-change-key.png</file>
+        <file alias="database-lock">../share/icons/application/32x32/actions/database-lock.png</file>
+        <file alias="dialog-close">../share/icons/application/32x32/actions/dialog-close.png</file>
+        <file alias="dialog-ok">../share/icons/application/32x32/actions/dialog-ok.png</file>
+        <file alias="document-close">../share/icons/application/32x32/actions/document-close.png</file>
+        <file alias="document-edit">../share/icons/application/32x32/actions/document-edit.png</file>
+        <file alias="document-new">../share/icons/application/32x32/actions/document-new.png</file>
+        <file alias="document-open">../share/icons/application/32x32/actions/document-open.png</file>
+        <file alias="document-properties">../share/icons/application/32x32/actions/document-properties.png</file>
+        <file alias="document-save">../share/icons/application/32x32/actions/document-save.png</file>
+        <file alias="edit-clear-locationbar-ltr">../share/icons/application/32x32/actions/edit-clear-locationbar-ltr.png</file>
+        <file alias="edit-clear-locationbar-rtl">../share/icons/application/32x32/actions/edit-clear-locationbar-rtl.png</file>
+        <file alias="entry-clone">../share/icons/application/32x32/actions/entry-clone.png</file>
+        <file alias="entry-delete">../share/icons/application/32x32/actions/entry-delete.png</file>
+        <file alias="entry-edit">../share/icons/application/32x32/actions/entry-edit.png</file>
+        <file alias="entry-new">../share/icons/application/32x32/actions/entry-new.png</file>
+        <file alias="favicon-download">../share/icons/application/32x32/actions/favicon-download.png</file>
+        <file alias="group-empty-trash">../share/icons/application/32x32/actions/group-empty-trash.png</file>
+        <file alias="group-delete">../share/icons/application/16x16/actions/group-delete.png</file>
+        <file alias="group-new">../share/icons/application/16x16/actions/group-new.png</file>
+        <file alias="group-edit">../share/icons/application/16x16/actions/group-edit.png</file>
+        <file alias="help-about">../share/icons/application/32x32/actions/help-about.png</file>
+        <file alias="key-enter">../share/icons/application/32x32/actions/key-enter.png</file>
+        <file alias="paperclip">../share/icons/application/32x32/actions/paperclip.png</file>
+        <file alias="password-copy">../share/icons/application/32x32/actions/password-copy.png</file>
+        <file alias="password-generate">../share/icons/application/32x32/actions/password-generate.png</file>
+        <file alias="password-generator">../share/icons/application/32x32/actions/password-generator.png</file>
+        <file alias="password-show-off">../share/icons/application/32x32/actions/password-show-off.png</file>
+        <file alias="password-show-on">../share/icons/application/32x32/actions/password-show-on.png</file>
+        <file alias="statistics">../share/icons/application/32x32/actions/statistics.png</file>
+        <file alias="system-help">../share/icons/application/32x32/actions/system-help.png</file>
+        <file alias="system-search">../share/icons/application/32x32/actions/system-search.png</file>
+        <file alias="url-copy">../share/icons/application/32x32/actions/url-copy.png</file>
+        <file alias="username-copy">../share/icons/application/32x32/actions/username-copy.png</file>
+        <file alias="view-history">../share/icons/application/32x32/actions/view-history.png</file>
+    </qresource>
+</RCC>

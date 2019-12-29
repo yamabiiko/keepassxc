@@ -197,7 +197,7 @@ if(MINGW OR (UNIX AND NOT APPLE))
             core/OSEventFilter.cpp)
 endif()
 
-set(keepassx_SOURCES_MAINEXE main.cpp)
+set(keepassx_SOURCES_MAINEXE main.cpp qml.qrc)
 
 add_feature_info(Auto-Type WITH_XC_AUTOTYPE "Automatic password typing")
 add_feature_info(Networking WITH_XC_NETWORKING "Compile KeePassXC with network access code (e.g. for downloading website icons)")
@@ -300,6 +300,9 @@ target_link_libraries(keepassx_core
         Qt5::Core
         Qt5::Concurrent
         Qt5::Network
+        Qt5::Qml
+        Qt5::Quick
+        Qt5::QuickControls2
         Qt5::Widgets
         ${sodium_LIBRARY_RELEASE}
         ${YUBIKEY_LIBRARIES}

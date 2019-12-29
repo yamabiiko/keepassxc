@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QQmlApplicationEngine>
+#include <QQuickStyle>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QTextStream>
@@ -49,10 +51,8 @@ int main(int argc, char** argv)
     QT_REQUIRE_VERSION(argc, argv, QT_VERSION_STR)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#ifdef Q_OS_LINUX
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
@@ -129,29 +129,38 @@ int main(int argc, char** argv)
         Config::createConfigFromFile(parser.value(configOption));
     }
 
-    MainWindow mainWindow;
-    QObject::connect(&app, SIGNAL(anotherInstanceStarted()), &mainWindow, SLOT(bringToFront()));
-    QObject::connect(&app, SIGNAL(applicationActivated()), &mainWindow, SLOT(bringToFront()));
-    QObject::connect(&app, SIGNAL(openFile(QString)), &mainWindow, SLOT(openDatabase(QString)));
-    QObject::connect(&app, SIGNAL(quitSignalReceived()), &mainWindow, SLOT(appExit()), Qt::DirectConnection);
-
-    Bootstrap::restoreMainWindowState(mainWindow);
-
-    const bool pwstdin = parser.isSet(pwstdinOption);
-    for (const QString& filename : fileNames) {
-        QString password;
-        if (pwstdin) {
-            // we always need consume a line of STDIN if --pw-stdin is set to clear out the
-            // buffer for native messaging, even if the specified file does not exist
-            QTextStream out(stdout, QIODevice::WriteOnly);
-            out << QObject::tr("Database password: ") << flush;
-            password = Utils::getPassword();
+    QQmlApplicationEngine engine;
+    const QUrl url("qrc:/qml/classic/main.qml");
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl) {
+            QCoreApplication::exit(-1);
         }
+    }, Qt::QueuedConnection);
+    engine.load(url);
 
-        if (!filename.isEmpty() && QFile::exists(filename) && !filename.endsWith(".json", Qt::CaseInsensitive)) {
-            mainWindow.openDatabase(filename, password, parser.value(keyfileOption));
-        }
-    }
+//    MainWindow mainWindow;
+//    QObject::connect(&app, SIGNAL(anotherInstanceStarted()), &mainWindow, SLOT(bringToFront()));
+//    QObject::connect(&app, SIGNAL(applicationActivated()), &mainWindow, SLOT(bringToFront()));
+//    QObject::connect(&app, SIGNAL(openFile(QString)), &mainWindow, SLOT(openDatabase(QString)));
+//    QObject::connect(&app, SIGNAL(quitSignalReceived()), &mainWindow, SLOT(appExit()), Qt::DirectConnection);
+//
+//    Bootstrap::restoreMainWindowState(mainWindow);
+//
+//    const bool pwstdin = parser.isSet(pwstdinOption);
+//    for (const QString& filename : fileNames) {
+//        QString password;
+//        if (pwstdin) {
+//            // we always need consume a line of STDIN if --pw-stdin is set to clear out the
+//            // buffer for native messaging, even if the specified file does not exist
+//            QTextStream out(stdout, QIODevice::WriteOnly);
+//            out << QObject::tr("Database password: ") << flush;
+//            password = Utils::getPassword();
+//        }
+//
+//        if (!filename.isEmpty() && QFile::exists(filename) && !filename.endsWith(".json", Qt::CaseInsensitive)) {
+//            mainWindow.openDatabase(filename, password, parser.value(keyfileOption));
+//        }
+//    }
 
     int exitCode = Application::exec();
 
