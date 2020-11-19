@@ -49,7 +49,7 @@ DatabaseTabWidget::DatabaseTabWidget(QWidget* parent)
     : QTabWidget(parent)
     , m_dbWidgetStateSync(new DatabaseWidgetStateSync(this))
     , m_dbWidgetPendingLock(nullptr)
-    , m_databaseOpenDialog(new DatabaseOpenDialog(this))
+    , m_databaseOpenDialog(new DatabaseOpenDialog())
 {
     auto* tabBar = new DragTabBar(this);
     setTabBar(tabBar);

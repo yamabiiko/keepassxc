@@ -25,7 +25,8 @@ DatabaseOpenDialog::DatabaseOpenDialog(QWidget* parent)
     , m_view(new DatabaseOpenWidget(this))
 {
     setWindowTitle(tr("Unlock Database - KeePassXC"));
-    setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+    setWindowFlags((windowFlags() | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint)
+                   & ~Qt::WindowContextHelpButtonHint);
     connect(m_view, SIGNAL(dialogFinished(bool)), this, SLOT(complete(bool)));
     auto* layout = new QVBoxLayout();
     layout->setMargin(0);
