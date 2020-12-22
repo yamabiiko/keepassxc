@@ -359,6 +359,28 @@ void Metadata::setProtectNotes(bool value)
     set(m_data.protectNotes, value);
 }
 
+QIcon Metadata::getIcon(const QByteArray& rawIcon)
+{
+    QImage image = QImage::fromData(rawIcon);
+
+    // TODO: This check can go away when we move all QIcon handling outside of core
+    // On older versions of Qt, loading a QPixmap from QImage outside of a GUI
+    // environment causes ASAN to fail and crash on nullptr violation
+    static bool isGui = qApp->inherits("QGuiApplication");
+    if (isGui) {
+        // Generate QIcon with pre-baked resolutions
+        auto basePixmap = QPixmap::fromImage(image.scaled(64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+        return QIcon(basePixmap);
+    } else {
+        return QIcon();
+    }
+}
+
+QPixmap Metadata::getIconPixmap(const QIcon& icon, IconSize size)
+{
+    return icon.pixmap(databaseIcons()->iconSize(size));
+}
+
 void Metadata::addCustomIcon(const QUuid& uuid, const QImage& image)
 {
     Q_ASSERT(!uuid.isNull());

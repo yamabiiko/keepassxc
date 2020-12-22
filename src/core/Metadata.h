@@ -104,6 +104,9 @@ public:
     CustomData* customData();
     const CustomData* customData() const;
 
+    static QIcon getIcon(const QByteArray& rawIcon);
+    static QPixmap getIconPixmap(const QIcon& icon, IconSize size);
+
     static const int DefaultHistoryMaxItems;
     static const int DefaultHistoryMaxSize;
 
