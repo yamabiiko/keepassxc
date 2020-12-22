@@ -414,7 +414,12 @@ void Metadata::addCustomIcon(const QUuid& uuid, const QImage& image)
 void Metadata::addCustomIcon2(const QUuid& uuid, const QByteArray& rawImage)
 {
     m_customIconsRawer[uuid] = rawImage;
-    addCustomIcon(uuid, QImage::fromData(rawImage));
+    QImage image = QImage::fromData(rawImage);
+    if (image.width() != 16 || image.height() != 16) {
+        image = image.scaled(16, 16);
+    }
+
+    addCustomIcon(uuid, image);
 }
 
 void Metadata::removeCustomIcon(const QUuid& uuid)
