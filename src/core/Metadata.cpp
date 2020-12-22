@@ -190,7 +190,7 @@ QPixmap Metadata::customIconPixmap(const QUuid& uuid, IconSize size) const
     return m_customIcons.value(uuid).pixmap(databaseIcons()->iconSize(size));
 }
 
-QHash<QUuid, QPixmap> Metadata::customIconsPixmaps(IconSize size) const
+QHash<QUuid, QPixmap> Metadata::customIconsInOrder(IconSize size) const
 {
     QHash<QUuid, QPixmap> result;
 
