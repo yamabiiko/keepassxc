@@ -126,6 +126,7 @@ public:
     void setProtectUrl(bool value);
     void setProtectNotes(bool value);
     void addCustomIcon(const QUuid& uuid, const QImage& image);
+    void addCustomIcon2(const QUuid& uuid, const QByteArray& rawImage);
     void removeCustomIcon(const QUuid& uuid);
     void copyCustomIcons(const QSet<QUuid>& iconList, const Metadata* otherMetadata);
     QUuid findCustomIcon(const QImage& candidate);
@@ -165,6 +166,7 @@ private:
 
     QHash<QUuid, QIcon> m_customIcons;
     QHash<QUuid, QImage> m_customIconsRaw;
+    QHash<QUuid, QByteArray> m_customIconsRawer;
     QList<QUuid> m_customIconsOrder;
     QHash<QByteArray, QUuid> m_customIconsHashes;
 

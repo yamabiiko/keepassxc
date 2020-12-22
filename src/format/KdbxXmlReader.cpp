@@ -350,7 +350,7 @@ void KdbxXmlReader::parseIcon()
     Q_ASSERT(m_xml.isStartElement() && m_xml.name() == "Icon");
 
     QUuid uuid;
-    QImage icon;
+    QByteArray rawIcon;
     bool uuidSet = false;
     bool iconSet = false;
 
@@ -359,7 +359,7 @@ void KdbxXmlReader::parseIcon()
             uuid = readUuid();
             uuidSet = !uuid.isNull();
         } else if (m_xml.name() == "Data") {
-            icon.loadFromData(readBinary());
+            rawIcon = readBinary();
             iconSet = true;
         } else {
             skipCurrentElement();
@@ -371,7 +371,7 @@ void KdbxXmlReader::parseIcon()
         if (m_meta->hasCustomIcon(uuid)) {
             uuid = QUuid::createUuid();
         }
-        m_meta->addCustomIcon(uuid, icon);
+        m_meta->addCustomIcon2(uuid, rawIcon);
         return;
     }
 

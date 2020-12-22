@@ -411,6 +411,12 @@ void Metadata::addCustomIcon(const QUuid& uuid, const QImage& image)
     emit metadataModified();
 }
 
+void Metadata::addCustomIcon2(const QUuid& uuid, const QByteArray& rawImage)
+{
+    m_customIconsRawer[uuid] = rawImage;
+    addCustomIcon(uuid, QImage::fromData(rawImage));
+}
+
 void Metadata::removeCustomIcon(const QUuid& uuid)
 {
     Q_ASSERT(!uuid.isNull());
