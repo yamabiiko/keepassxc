@@ -18,7 +18,6 @@
 #include "KeePass1Reader.h"
 
 #include <QFile>
-#include <QImage>
 #include <QTextCodec>
 
 #include "core/Database.h"
