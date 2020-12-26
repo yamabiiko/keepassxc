@@ -67,6 +67,7 @@ void Metadata::clear()
     init();
     m_customIcons.clear();
     m_customIconsRaw.clear();
+    m_customIconsRawer.clear();
     m_customIconsOrder.clear();
     m_customIconsHashes.clear();
     m_customData->clear();
@@ -208,7 +209,7 @@ QHash<QUuid, QPixmap> Metadata::customIconsInOrder(IconSize size) const
 
 bool Metadata::hasCustomIcon(const QUuid& uuid) const
 {
-    return m_customIconsRaw.contains(uuid);
+    return m_customIconsRawer.contains(uuid);
 }
 
 QList<QUuid> Metadata::customIconsOrder() const
