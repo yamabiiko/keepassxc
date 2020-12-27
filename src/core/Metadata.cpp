@@ -458,7 +458,7 @@ void Metadata::copyCustomIcons(const QSet<QUuid>& iconList, const Metadata* othe
         Q_ASSERT(otherMetadata->hasCustomIcon(uuid));
 
         if (!hasCustomIcon(uuid) && otherMetadata->hasCustomIcon(uuid)) {
-            addCustomIcon(uuid, otherMetadata->customIcon(uuid));
+            addCustomIcon2(uuid, otherMetadata->customIconRaw(uuid));
         }
     }
 }
