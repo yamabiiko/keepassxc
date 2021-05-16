@@ -149,6 +149,7 @@ set(keepassx_SOURCES
         gui/group/GroupModel.cpp
         gui/group/GroupView.cpp
         gui/tag/TagModel.cpp
+        gui/tag/TagsWidget.cpp
         gui/databasekey/KeyComponentWidget.cpp
         gui/databasekey/PasswordEditWidget.cpp
         gui/databasekey/YubiKeyEditWidget.cpp
@@ -318,6 +319,7 @@ target_link_libraries(keepassx_core
         Qt5::Concurrent
         Qt5::Network
         Qt5::Widgets
+        Qt5::GuiPrivate
         ${BOTAN2_LIBRARIES}
         ${YUBIKEY_LIBRARIES}
         ${ZXCVBN_LIBRARIES}
