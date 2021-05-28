@@ -53,7 +53,7 @@ public:
     void tags(QStringList const& tags);
 
     /// Get tags
-    std::vector<QString> tags() const;
+    QStringList tags() const;
 
     void setReadOnly(bool readOnly);
 

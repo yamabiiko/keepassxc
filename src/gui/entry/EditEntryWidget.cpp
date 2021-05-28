@@ -1130,13 +1130,7 @@ void EditEntryWidget::updateEntryData(Entry* entry) const
     entry->setPassword(m_mainUi->passwordEdit->text());
     entry->setExpires(m_mainUi->expireCheck->isChecked());
     entry->setExpiryTime(m_mainUi->expireDatePicker->dateTime().toUTC());
-    auto combineTags = [](const std::vector<QString>& tags) {
-        QString s("");
-        for (auto t : tags)
-            s += t + ";";
-        return s;
-    };
-    entry->setTags(combineTags(m_mainUi->tagsList->tags()));
+    entry->setTags(m_mainUi->tagsList->tags().join(";"));
 
     entry->setNotes(m_mainUi->notesEdit->toPlainText());
 

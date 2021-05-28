@@ -162,7 +162,7 @@ struct TagsWidget::Impl
         return cross;
     }
 
-    bool inCrossArea(size_t tag_index, QPoint const& point) const
+    bool inCrossArea(int tag_index, QPoint const& point) const
     {
         return cross_deleter
                    ? crossRect(tags[tag_index].rect).adjusted(-2, 0, 0, 0).translated(-hscroll, 0).contains(point)
@@ -304,7 +304,7 @@ struct TagsWidget::Impl
         text_layout.endLayout();
     }
 
-    void setEditingIndex(size_t i)
+    void setEditingIndex(int i)
     {
         assert(i <= tags.size());
         if (currentText().isEmpty()) {
@@ -473,7 +473,7 @@ struct TagsWidget::Impl
         }
     }
 
-    void editTag(size_t i)
+    void editTag(int i)
     {
         assert(i >= 0 && i < tags.size());
         setEditingIndex(i);
@@ -481,8 +481,8 @@ struct TagsWidget::Impl
     }
 
     TagsWidget* const ifce;
-    std::vector<Tag> tags;
-    size_t editing_index;
+    QList<Tag> tags;
+    int editing_index;
     int cursor;
     int blink_timer;
     bool blink_status;
@@ -613,7 +613,7 @@ void TagsWidget::timerEvent(QTimerEvent* event)
 void TagsWidget::mousePressEvent(QMouseEvent* event)
 {
     bool found = false;
-    for (size_t i = 0; i < impl->tags.size(); ++i) {
+    for (int i = 0; i < impl->tags.size(); ++i) {
         if (impl->inCrossArea(i, event->pos())) {
             impl->tags.erase(impl->tags.begin() + std::ptrdiff_t(i));
             if (i <= impl->editing_index) {
@@ -783,7 +783,7 @@ void TagsWidget::completion(QStringList const& completions)
 
 void TagsWidget::tags(QStringList const& tags)
 {
-    std::vector<Tag> t{Tag()};
+    QList<Tag> t{Tag()};
     std::transform(tags.begin(), tags.end(), std::back_inserter(t), [](QString const& text) {
         return Tag{text, QRect()};
     });
@@ -798,9 +798,9 @@ void TagsWidget::tags(QStringList const& tags)
     update();
 }
 
-std::vector<QString> TagsWidget::tags() const
+QStringList TagsWidget::tags() const
 {
-    std::vector<QString> ret;
+    QStringList ret;
     std::transform(EmptySkipIterator(impl->tags.begin(), impl->tags.end()),
                    EmptySkipIterator(impl->tags.end()),
                    std::back_inserter(ret),
@@ -811,7 +811,7 @@ std::vector<QString> TagsWidget::tags() const
 void TagsWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if (!m_readOnly) {
-        for (size_t i = 0; i < impl->tags.size(); ++i) {
+        for (int i = 0; i < impl->tags.size(); ++i) {
             if (impl->inCrossArea(i, event->pos())) {
                 setCursor(Qt::ArrowCursor);
                 return;
