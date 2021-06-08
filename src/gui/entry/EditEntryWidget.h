@@ -38,6 +38,7 @@ class EditWidgetIcons;
 class EditWidgetProperties;
 class Entry;
 class EntryAttributes;
+class EntryAttachments;
 class EntryAttributesModel;
 class EntryHistoryModel;
 class QButtonGroup;
@@ -173,6 +174,7 @@ private:
     const QScopedPointer<Ui::EditEntryWidgetSSHAgent> m_sshAgentUi;
     const QScopedPointer<Ui::EditEntryWidgetHistory> m_historyUi;
     const QScopedPointer<Ui::EditEntryWidgetBrowser> m_browserUi;
+    const QScopedPointer<EntryAttachments> m_attachments;
     const QScopedPointer<CustomData> m_customData;
 
     QScrollArea* const m_mainWidget;

@@ -1,17 +1,13 @@
 #include "EntryAttachmentsWidget.h"
 #include "ui_EntryAttachmentsWidget.h"
 
-#include <QDesktopServices>
 #include <QDir>
 #include <QDropEvent>
-#include <QFile>
-#include <QFileInfo>
 #include <QMimeData>
-#include <QProcessEnvironment>
+#include <QStandardPaths>
 #include <QTemporaryFile>
 
 #include "EntryAttachmentsModel.h"
-#include "config-keepassx.h"
 #include "core/Config.h"
 #include "core/EntryAttachments.h"
 #include "core/Tools.h"
@@ -21,7 +17,7 @@
 EntryAttachmentsWidget::EntryAttachmentsWidget(QWidget* parent)
     : QWidget(parent)
     , m_ui(new Ui::EntryAttachmentsWidget)
-    , m_entryAttachments(new EntryAttachments(this))
+    , m_entryAttachments(nullptr)
     , m_attachmentsModel(new EntryAttachmentsModel(this))
     , m_readOnly(false)
     , m_buttonsVisible(true)
@@ -32,7 +28,6 @@ EntryAttachmentsWidget::EntryAttachmentsWidget(QWidget* parent)
     m_ui->attachmentsView->viewport()->setAcceptDrops(true);
     m_ui->attachmentsView->viewport()->installEventFilter(this);
 
-    m_attachmentsModel->setEntryAttachments(m_entryAttachments);
     m_ui->attachmentsView->setModel(m_attachmentsModel);
     m_ui->attachmentsView->verticalHeader()->hide();
     m_ui->attachmentsView->horizontalHeader()->setStretchLastSection(true);
@@ -66,7 +61,7 @@ EntryAttachmentsWidget::~EntryAttachmentsWidget()
 {
 }
 
-const EntryAttachments* EntryAttachmentsWidget::entryAttachments() const
+const EntryAttachments* EntryAttachmentsWidget::attachments() const
 {
     return m_entryAttachments;
 }
@@ -81,15 +76,29 @@ bool EntryAttachmentsWidget::isButtonsVisible() const
     return m_buttonsVisible;
 }
 
-void EntryAttachmentsWidget::setEntryAttachments(const EntryAttachments* attachments)
+void EntryAttachmentsWidget::linkAttachments(EntryAttachments* attachments)
 {
-    Q_ASSERT(attachments != nullptr);
-    m_entryAttachments->copyDataFrom(attachments);
+    unlinkAttachments();
+
+    m_entryAttachments = attachments;
+    m_attachmentsModel->setEntryAttachments(m_entryAttachments);
+
+    if (m_entryAttachments) {
+        connect(m_entryAttachments,
+                SIGNAL(valueModifiedExternally(QString, QString)),
+                this,
+                SLOT(attachmentModifiedExternally(QString, QString)));
+        connect(m_entryAttachments, SIGNAL(modified()), this, SIGNAL(widgetUpdated()));
+    }
 }
 
-void EntryAttachmentsWidget::clearAttachments()
+void EntryAttachmentsWidget::unlinkAttachments()
 {
-    m_entryAttachments->clear();
+    if (m_entryAttachments) {
+        m_entryAttachments->disconnect(this);
+        m_entryAttachments = nullptr;
+        m_attachmentsModel->setEntryAttachments(nullptr);
+    }
 }
 
 void EntryAttachmentsWidget::setReadOnly(bool readOnly)
@@ -112,25 +121,9 @@ void EntryAttachmentsWidget::setButtonsVisible(bool buttonsVisible)
     emit buttonsVisibleChanged(m_buttonsVisible);
 }
 
-QByteArray EntryAttachmentsWidget::getAttachment(const QString& name)
-{
-    return m_entryAttachments->value(name);
-}
-
-void EntryAttachmentsWidget::setAttachment(const QString& name, const QByteArray& value)
-{
-    m_entryAttachments->set(name, value);
-}
-
-void EntryAttachmentsWidget::removeAttachment(const QString& name)
-{
-    if (!isReadOnly() && m_entryAttachments->hasKey(name)) {
-        m_entryAttachments->remove(name);
-    }
-}
-
 void EntryAttachmentsWidget::insertAttachments()
 {
+    Q_ASSERT(m_entryAttachments);
     Q_ASSERT(!isReadOnly());
     if (isReadOnly()) {
         return;
@@ -160,6 +153,7 @@ void EntryAttachmentsWidget::insertAttachments()
 
 void EntryAttachmentsWidget::removeSelectedAttachments()
 {
+    Q_ASSERT(m_entryAttachments);
     Q_ASSERT(!isReadOnly());
     if (isReadOnly()) {
         return;
@@ -188,11 +182,14 @@ void EntryAttachmentsWidget::removeSelectedAttachments()
 
 void EntryAttachmentsWidget::renameSelectedAttachments()
 {
+    Q_ASSERT(m_entryAttachments);
     m_ui->attachmentsView->edit(m_ui->attachmentsView->selectionModel()->selectedIndexes().first());
 }
 
 void EntryAttachmentsWidget::saveSelectedAttachments()
 {
+    Q_ASSERT(m_entryAttachments);
+
     const QModelIndexList indexes = m_ui->attachmentsView->selectionModel()->selectedRows(0);
     if (indexes.isEmpty()) {
         return;
@@ -265,7 +262,7 @@ void EntryAttachmentsWidget::openAttachment(const QModelIndex& index)
     }
 
     QString errorMessage;
-    if (!openAttachment(index, errorMessage)) {
+    if (!m_entryAttachments->openAttachment(m_attachmentsModel->keyByIndex(index), &errorMessage)) {
         errorOccurred(tr("Unable to open attachment:\n%1").arg(errorMessage));
     }
 }
@@ -280,7 +277,7 @@ void EntryAttachmentsWidget::openSelectedAttachments()
     QStringList errors;
     for (const QModelIndex& index : indexes) {
         QString errorMessage;
-        if (!openAttachment(index, errorMessage)) {
+        if (!m_entryAttachments->openAttachment(m_attachmentsModel->keyByIndex(index), &errorMessage)) {
             const QString filename = m_attachmentsModel->keyByIndex(index);
             errors.append(QString("%1 - %2").arg(filename, errorMessage));
         };
@@ -334,39 +331,6 @@ bool EntryAttachmentsWidget::insertAttachments(const QStringList& filenames, QSt
     }
 
     return errors.isEmpty();
-}
-
-bool EntryAttachmentsWidget::openAttachment(const QModelIndex& index, QString& errorMessage)
-{
-    const QString filename = m_attachmentsModel->keyByIndex(index);
-    const QByteArray attachmentData = m_entryAttachments->value(filename);
-
-    // tmp file will be removed once the database (or the application) has been closed
-#ifdef KEEPASSXC_DIST_SNAP
-    const QString tmpFileTemplate =
-        QString("%1/XXXXXX.%2").arg(QProcessEnvironment::systemEnvironment().value("SNAP_USER_DATA"), filename);
-#else
-    const QString tmpFileTemplate = QDir::temp().absoluteFilePath(QString("XXXXXX.").append(filename));
-#endif
-
-    QScopedPointer<QTemporaryFile> tmpFile(new QTemporaryFile(tmpFileTemplate, this));
-
-    const bool saveOk = tmpFile->open() && tmpFile->write(attachmentData) == attachmentData.size() && tmpFile->flush();
-    if (!saveOk) {
-        errorMessage = QString("%1 - %2").arg(filename, tmpFile->errorString());
-        return false;
-    }
-
-    tmpFile->close();
-    const bool openOk = QDesktopServices::openUrl(QUrl::fromLocalFile(tmpFile->fileName()));
-    if (!openOk) {
-        errorMessage = QString("Can't open file \"%1\"").arg(filename);
-        return false;
-    }
-
-    // take ownership of the tmpFile pointer
-    tmpFile.take();
-    return true;
 }
 
 QStringList EntryAttachmentsWidget::confirmLargeAttachments(const QStringList& filenames)
@@ -432,4 +396,27 @@ bool EntryAttachmentsWidget::eventFilter(QObject* watched, QEvent* e)
     }
 
     return QWidget::eventFilter(watched, e);
+}
+
+void EntryAttachmentsWidget::attachmentModifiedExternally(const QString& key, const QString& filePath)
+{
+    auto result = MessageBox::question(
+        this,
+        tr("Attachment modified"),
+        tr("The attachment '%1' was modified.\nDo you want to save the changes to your database?").arg(key),
+        MessageBox::Save | MessageBox::Discard,
+        MessageBox::Save);
+
+    if (result == MessageBox::Save) {
+        QFile f(filePath);
+        if (f.open(QFile::ReadOnly)) {
+            m_entryAttachments->set(key, f.readAll());
+            f.close();
+            emit widgetUpdated();
+        } else {
+            MessageBox::critical(this,
+                                 tr("Saving attachment failed"),
+                                 tr("Saving updated attachment failed.\nError: %1").arg(f.errorString()));
+        }
+    }
 }

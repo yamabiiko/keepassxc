@@ -22,17 +22,13 @@ public:
     explicit EntryAttachmentsWidget(QWidget* parent = nullptr);
     ~EntryAttachmentsWidget();
 
-    const EntryAttachments* entryAttachments() const;
+    const EntryAttachments* attachments() const;
     bool isReadOnly() const;
     bool isButtonsVisible() const;
 
-    QByteArray getAttachment(const QString& name);
-    void setAttachment(const QString& name, const QByteArray& value);
-    void removeAttachment(const QString& name);
-
 public slots:
-    void setEntryAttachments(const EntryAttachments* attachments);
-    void clearAttachments();
+    void linkAttachments(EntryAttachments* attachments);
+    void unlinkAttachments();
     void setReadOnly(bool readOnly);
     void setButtonsVisible(bool isButtonsVisible);
 
@@ -51,10 +47,10 @@ private slots:
     void openSelectedAttachments();
     void updateButtonsVisible();
     void updateButtonsEnabled();
+    void attachmentModifiedExternally(const QString& key, const QString& filePath);
 
 private:
     bool insertAttachments(const QStringList& fileNames, QString& errorMessage);
-    bool openAttachment(const QModelIndex& index, QString& errorMessage);
 
     QStringList confirmLargeAttachments(const QStringList& filenames);
 
